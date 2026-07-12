@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css"/>
+
+
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#2E7D32">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
+
+</head>
+
+<body>
+<!-- <h1>helo</h1> -->
+
+<div id="map">
+    <button id="clearBtn">Clear Boundary</button>
+</div>
+<!-- <button id="addHouseBtn">Add House</button>
+<button id="locateBtn">Locate Me</button>
+<div id="searchContainer">
+
+    <input
+        type="text"
+        id="searchHouse"
+        placeholder="Search House Number">
+
+    <button id="searchBtn">
+        Search
+    </button>
+
+</div> -->
+<div id="leftToolbar">
+
+    <div class="menu">
+
+        <button id="houseMenuBtn" class="mainBtn">
+            <img src="icons/mainhome.svg">
+        </button>
+
+        <div id="houseMenu" class="submenu">
+
+            <button id="addHouseBtn">
+                <img src="icons/home.svg">
+            </button>
+
+            <button id="locateBtn">
+                <img src="icons/location.svg">
+            </button>
+
+            <button id="dashboardBtn">
+                <img src="icons/dashbord.svg">
+            </button>
+
+            <button id="exportBtn">
+                <img src="icons/download.svg">
+            </button>
+            <input type="file" id="importJson" accept=".json" hidden>
+
+            <button id="importBtn"><img src="icons/upload.svg">
+        </button>
+            
+
+        </div>
+
+    </div>
+
+    <div class="menu">
+
+        <button id="searchBtn" class="mainBtn">
+
+            <img src="icons/mainsearch.svg">
+
+        </button>
+
+        <!-- <div id="searchMenu"> -->
+
+            <!-- Search bar comes later -->
+             <div id="searchdiv" class="submenu">
+    <input type="text" placeholder="Enter house number" id="searchip">
+    <button id="hsearch"><img src="icons/search.svg" alt="Add House"></button>
+</div>
+
+        </div>
+
+    <!-- </div> -->
+
+    <div class="menu">
+
+        <button id="drawMenuBtn" class="mainBtn">
+
+            <img src="icons/mainpencil.svg">
+
+        </button>
+
+        <div id="drawMenu" class="submenu">
+
+            <button id="drawBoundaryBtn">
+                <img src="icons/polygon.svg">
+            </button>
+
+            <button id="editBoundaryBtn">
+                <img src="icons/pencil-svgrepo-com.svg">
+            </button>
+
+            <button id="clearBoundaryBtn">
+                <img src="icons/clearboundary.svg">
+            </button>
+            
+
+        </div>
+
+    </div>
+    <div class="menu">
+
+        <button id="exportPdfBtn" class="mainBtn">
+
+            <img src="icons/pdf.svg">
+
+        </button>
+
+
+        </div>
+    <div class="menu">
+
+        <button id="templatePdfBtn" class="mainBtn">
+
+            <img src="icons/template.svg">
+
+        </button>
+
+
+        </div>
+
+</div>
+<div id="toast"></div>
+
+
+<div id="dashboard">
+
+    <div id="dashboardSummary">
+
+        <div class="dashItem">
+            <div class="dot red"></div>
+            <span id="revisitCount">0</span>
+        </div>
+
+        <div class="dashItem">
+            <div class="dot green"></div>
+            <span id="completedCount">0</span>
+        </div>
+
+        <div class="dashItem">
+            <div class="dot blue"></div>
+            <span id="pendingCount">0</span>
+        </div>
+        <div class="dashItem">
+            <div class="dot black"></div>
+            <span id="totalCount">0</span>
+        </div>
+
+    </div>
+
+    <div id="dashboardDetails">
+
+        <h3>Survey Dashboard</h3>
+
+        <div class="detail">
+            <div class="dot red"></div>
+            <span>Revisit</span>
+            <span id="revisitCount2">0</span>
+        </div>
+
+        <div class="detail">
+            <div class="dot green"></div>
+            <span>Completed</span>
+            <span id="completedCount2">0</span>
+        </div>
+
+        <div class="detail">
+            <div class="dot blue"></div>
+            <span>Census Done</span>
+            <span id="pendingCount2">0</span>
+        </div>
+
+        <div class="detail">
+            <strong>Total Houses</strong>
+            <span id="totalCount2">0</span>
+        </div>
+
+    </div>
+
+</div>
+
+<div id="houseForm">
+
+    <div id="dragHandle"></div>
+
+    <!-- <h3>House Details</h3> -->
+
+    <input type="text" id="houseNo" placeholder="House Number">
+
+    <label for="rooms">Rooms</label>
+    <input type="number" id="rooms" placeholder="Enter the rooms">
+
+    <label for="people">People</label>
+    <input type="number" id="people" >
+
+    <div id="revisitRow" class="check">
+        <input type="checkbox" id="cboxrevisit">
+        <label for="cboxrevisit">Mark for Revisit</label>
+    </div>
+
+    <div id="buttonRow">
+        <button id="saveHouse">Save</button>
+        <button id="cancelHouse">Cancel</button>
+        <button id="deleteHouse">Delete</button>
+    </div>
+    <div id="censusComplete" class="check">
+        <input type="checkbox" id="censusCompleteip">
+        <label for="cboxrevisit">Census Completed</label>
+    </div>
+
+</div>
+<div id="printLayout">
+
+    <div id="paper">
+
+        <div id="paperHeader">
+
+            <h2>Ward Mapper</h2>
+
+            <div id="paperInfo">
+
+                <span>Ward :</span>
+
+                <span>Date :</span>
+
+            </div>
+
+        </div>
+
+        <div id="paperMap"></div>
+
+        <div id="paperFooter">
+
+            Generated by Ward Mapper
+
+        </div>
+
+    </div>
+
+    <button id="downloadPdf">
+    Export PDF
+</button>
+<button id="closePrintPreview">✕</button>
+<button id="printZoomIn">+</button>
+<button id="printZoomOut">−</button>
+<select id="paperSize">
+    <option value="A4">A4</option>
+    <option value="A3">A3</option>
+</select>
+
+</div>
+<div id="templateEditor">
+    <button id="saveTemplateLayout">Save Layout</button>
+    <button id="templateZoomIn">+</button>
+<button id="templateZoomOut">−</button>
+<button id="exportTemplatePdf">Download</button>
+<div id="templateCanvas">
+    <img
+        id="templateImage"
+        src="icons/template.png"
+    >
+
+    <div id="mapOverlay">
+<div id="templatePaperMap"></div>
+        <div class="handle nw" data-dir="nw"></div>
+<div class="handle n"  data-dir="n"></div>
+<div class="handle ne" data-dir="ne"></div>
+
+<div class="handle w"  data-dir="w"></div>
+<div class="handle e"  data-dir="e"></div>
+
+<div class="handle sw" data-dir="sw"></div>
+<div class="handle s"  data-dir="s"></div>
+<div class="handle se" data-dir="se"></div>
+
+    </div></div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+
+<script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script src="script.js"></script>
+
+
+
+</body>
+
+</html>
