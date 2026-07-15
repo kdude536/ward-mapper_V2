@@ -302,22 +302,38 @@ if(saved){
     });
 }
 
-document.getElementById("hsearch").onclick = function(){
-    
-    const hno=document.getElementById("searchip")
+ document.getElementById("hsearch").onclick = function(){
+    const query = document
+    .getElementById("searchip")
+    .value
+    .trim();
 
-    if (hno.value){
+if(/\d/.test(query)){
 
-        //console.log(hno.value)
+    searchHouse(query);
 
-        searchHouse(hno.value.trim())
-
-    }else{
-
-        hno.placeholder="Enter a houses number"
-
-    }
 }
+else{
+
+    searchPlace(query + ", Thiruvananthapuram, Kerala");
+
+}
+    
+//     const hno=document.getElementById("searchip")
+
+//     if (hno.value){
+
+//         //console.log(hno.value)
+
+//         searchHouse(hno.value.trim())
+
+//     }else{
+
+//         hno.placeholder="Enter a houses number"
+
+//     }
+ }
+
 
 
 
@@ -425,7 +441,8 @@ function createHouse(e)
 function saveHouses(house){
     
     const marker = house.marker.getElement();
-    
+
+    const main = marker.querySelector(".main-pdf");    
 
     selectedHouse = house;
     
@@ -455,18 +472,18 @@ function saveHouses(house){
 
         const censuscomplete=document.getElementById("censusCompleteip").checked
         
-        marker.classList.remove("completed", "revisit", "census");
+        main.classList.remove("pdf-incompleted","pdf-completed", "pdf-revisit", "pdf-census");
 
         if (censuscomplete){
             
-            house.marker.getElement().classList.add("census");
+            main.classList.add("pdf-census");
 
             house.status=3;
 
 
         }else if (revisit){
             
-            house.marker.getElement().classList.add("revisit");
+            main.classList.add("pdf-revisit");
 
             house.status=2;
 
@@ -475,7 +492,7 @@ function saveHouses(house){
 
         //    house.marker.getElement().classList.remove("revisit");
 
-           house.marker.getElement().classList.add("completed");
+           main.classList.add("pdf-completed");
 
            house.status=1;
         }
@@ -513,7 +530,7 @@ function saveHouses(house){
 
         // );
                 
-                console.log(houses)
+                // console.log(houses)
 
     saveHousesToLocalStorage();
     
@@ -883,17 +900,17 @@ function importHouse(houseData) {
     houseData.marker = marker;
         if (houseData.status === 1) {
 
-        marker.getElement().classList.add("completed");
+        marker.getElement().classList.add("pdf-completed");
 
     }
     else if (houseData.status === 2) {
 
-        marker.getElement().classList.add("revisit");
+        marker.getElement().classList.add("pdf-revisit");
 
     }
     else if (houseData.status === 3) {
 
-        marker.getElement().classList.add("census");
+        marker.getElement().classList.add("pdf-census");
 
     }
         marker.bindTooltip(
@@ -1420,7 +1437,8 @@ document.addEventListener("click",function(){
 
 document.getElementById("templatePdfBtn").onclick = function(){
 
-    document.getElementById("templateEditor").classList.add("open");
+    // document.getElementById("templateEditor").classList.add("open");
+    document.getElementById("templateEditor").style.display="inline-block";
 
     if(!templateMap){
 
@@ -1451,6 +1469,13 @@ console.log("templateMapp 2")
 
     },100);
     loadTemplateLayout();
+
+}
+document.getElementById("closeTemplatePdf").onclick = function(){
+
+    console.log("close button")
+
+    document.getElementById("templateEditor").style.display="none";
 
 }
 
@@ -1690,21 +1715,51 @@ function createPDF(canvas){
     pdf.save("Ward_Map.pdf");
 
 }
+function searchPlace(query){
 
-if ("serviceWorker" in navigator) {
+    fetch(
+        "https://nominatim.openstreetmap.org/search?format=json&q="
+        + encodeURIComponent(query)
+    )
 
-    navigator.serviceWorker.register("sw.js")
+    .then(response => response.json())
 
-    .then(function(reg){
+    .then(function(data){
 
-        console.log("Service Worker Registered");
+        if(data.length === 0){
 
-    })
+            showToast("Place not found");
+            return;
 
-    .catch(function(error){
+        }
+        showToast("Place found");
 
-        console.log(error);
+        map.setView(
+            [
+                parseFloat(data[0].lat),
+                parseFloat(data[0].lon)
+            ],
+            18
+        );
 
     });
 
 }
+
+// if ("serviceWorker" in navigator) {
+
+//     navigator.serviceWorker.register("sw.js")
+
+//     .then(function(reg){
+
+//         console.log("Service Worker Registered");
+
+//     })
+
+//     .catch(function(error){
+
+//         console.log(error);
+
+//     });
+
+// }

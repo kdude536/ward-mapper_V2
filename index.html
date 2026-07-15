@@ -258,24 +258,46 @@ href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css"/>
         </div>
 
     </div>
-
+<div id="printToolbar">
+    
     <button id="downloadPdf">
-    Export PDF
+    <img src="icons/download.svg" alt="Download">
 </button>
-<button id="closePrintPreview">✕</button>
-<button id="printZoomIn">+</button>
-<button id="printZoomOut">−</button>
 <select id="paperSize">
     <option value="A4">A4</option>
     <option value="A3">A3</option>
 </select>
 
+<button id="printZoomIn">+</button>
+<button id="printZoomOut">−</button>
+<button id="closePrintPreview"><img src="icons/clearboundary.svg" alt="Export"></button>
+
+
+</div>
 </div>
 <div id="templateEditor">
-    <button id="saveTemplateLayout">Save Layout</button>
+
+<div id="templateEditorToolbar">
+
+    <button id="saveTemplateLayout"><img src="icons/save.svg" alt="save"></button>
+
     <button id="templateZoomIn">+</button>
-<button id="templateZoomOut">−</button>
-<button id="exportTemplatePdf">Download</button>
+
+    <button id="templateZoomOut">−</button>
+
+    <select id="mapchoicetemplateEditor">
+
+        <option value="Street">Street</option>
+
+        <option value="Landscape">Landscape</option>
+
+    </select>
+
+    <button id="exportTemplatePdf"><img src="icons/download.svg" alt="save"></button>
+
+    <button id="closeTemplatePdf"><img src="icons/clearboundary.svg" alt="save"></button>
+
+</div>
 <div id="templateCanvas">
     <img
         id="templateImage"

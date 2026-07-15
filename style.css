@@ -733,7 +733,7 @@ button{
 }
 .leaflet-draw{
     position:absolute;
-    top:220px;   /* Adjust until it sits below your toolbar */
+    top:450px;   /* Adjust until it sits below your toolbar */
     left:15px;
 }
 
@@ -746,6 +746,7 @@ button{
     border-radius:50% !important;
      margin: 15px 0px 0px 0px;
 
+    
 
 }
 .leaflet-draw-toolbar a:hover{
@@ -866,6 +867,7 @@ button{
     align-items:center;
 
 }
+/* 
 #downloadPdf{
      position:absolute;
 
@@ -883,12 +885,7 @@ button{
 
     opacity:1;
 
-    /* transform:translateX(-20px);
-
-    /* pointer-events:none; */
-
-    /* transition:.25s;  */
-    
+ 
 
     cursor:pointer;
 
@@ -916,28 +913,108 @@ button{
 
     cursor:pointer;
 
+} */
+#printToolbar{
+    display: flex;
+
+    align-items: center;
+
+    flex-direction: column;
+
+    justify-content: center;
+    position:absolute;
+
+    bottom:55px;
+
+    right:45px;
+
+    gap: 10px;
+    z-index:2000;
+
+    opacity:1;
+
+    background-color: rgb(21, 101, 192,.3);
+
+    padding: 5px 3px;
+
+    border-radius: 25px;
+
+    
+
 }
-#closePrintPreview{
+select{
+
+    padding: 2px;
+
+    border-radius: 12px;
+
+    font-weight: bold;
+
+}
+#printToolbar button{
+     
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    font-size: 20px;
+}
+#printToolbar img{
+    height: 25px;
+    width: 25px;
+    object-fit:contain;
+}
+#printToolbar button:active{
+    background-color: #a23e00;
+}
+#printToolbar button:hover{
+    background-color: #a8f7fd;
+    
+}
+/* #closePrintPreview{
     position:absolute;
 
     bottom:55px;
 
     right:55px;
 
-    gap:12px;
-
+   
     z-index:2000;
 
     opacity:1;
 
-    /* transform:translateX(-20px);
+    border-radius: 50%;
 
-    /* pointer-events:none; */
+    background: #ffffff;
 
-    /* transition:.25s;  */
-    
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+ 
 
     cursor:pointer;
+}
+#closePrintPreview img{
+    height: 30px;
+    width: 30px;
+    object-fit:contain;
+}
+#closePrintPreview:active{
+    background-color: #a23e00;
+}
+#closePrintPreview:hover{
+    background-color: #a8f7fd;
+    
 }
 #printZoomIn{
      position:absolute;
@@ -981,7 +1058,7 @@ button{
     opacity:1;
 
     cursor:pointer;
-}
+} */
 /* .mainBtn img{
 
     width:30px;
@@ -1074,12 +1151,14 @@ button{
 .pdf-completed{
 
     background:#2e7d32;
+    color: green;
 
 }
 
 .pdf-revisit{
 
     background:#d32f2f;
+    color: red;
 
 }
 
@@ -1105,9 +1184,10 @@ button{
 
     left:0px;
 
-    top:-600px;
+    top:-100vh;
 
-    background-color: #2fd33a;
+     z-index: 10000;
+
 
     /* display:inline-block; */
 
@@ -1117,6 +1197,54 @@ button{
 
     z-index: 10000;
 }
+#templateEditorToolbar{
+
+    position:absolute;
+
+    bottom: 50px;
+
+    right: 50px;
+
+    display: flex;
+
+    flex-direction: row;
+
+    background-color: rgb(47, 61, 211,.8);
+
+    gap: 5px;
+
+    justify-content: space-around;
+
+    width: 300px;
+
+    padding: 10px;
+
+    border-radius: 20px;
+
+    z-index: 11000;
+
+}
+#templateEditorToolbar button{
+    padding: 4px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    border-radius: 50%;
+
+    font-weight: bolder;
+
+    font-size: 20px;
+
+}
+#templateEditorToolbar img{
+    height: 25px;
+    width: 25px;
+}
+
 #templateImage{
 
     display:block;
