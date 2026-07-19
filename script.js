@@ -41,7 +41,19 @@ let startTop;
 let startX;
  let startY;
 
+let roads = [];
 
+let drawingRoad = false;
+
+let currentRoadType = null;
+
+let currentRoadPoints = [];
+
+let tempRoad = null;
+
+let editingRoad = false;
+
+let selectedRoad = null;
 
 L.tileLayer(
 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -57,7 +69,7 @@ map.addLayer(drawnItems);
 //     featureGroup: drawnItems
 // });
 
-
+const roadEditLayer = L.layerGroup().addTo(map);
 
 // Drawing controls
 var drawControl = new L.Control.Draw({
@@ -253,6 +265,10 @@ if(saved){
 
             status:data.status,
 
+            buildingType:data.buildingType,
+
+            rotation:data.rotation,
+
         };
         
 
@@ -293,13 +309,15 @@ if(saved){
 
             //saveHouses(house);
                 
-            //console.log(houses)
+            // console.log(houses)
 
             });
 
 
 
     });
+    loadRoads();
+    console.log("loadRoad called")
 }
 
  document.getElementById("hsearch").onclick = function(){
@@ -360,7 +378,11 @@ document.getElementById("addHouseBtn").onclick = function(){
 
     });
 
+document.getElementById("cancelHouse").onclick=function(){
 
+               document.getElementById("houseForm").style.bottom = "-500px";;
+
+            }
 function createHouse(e)
 {
     const point = turf.point([
@@ -376,7 +398,6 @@ function createHouse(e)
 
     if(turf.booleanPointInPolygon(point, polygon)){
 
-        console.log("Inside");
         const marker = L.marker(
             e.latlng,
             {
@@ -391,6 +412,8 @@ function createHouse(e)
             people:0,
             marker:null,
             status:0,
+            htype:buildingType,
+            rotation:0,
 
         };
         house.marker=marker;
@@ -402,19 +425,13 @@ function createHouse(e)
 
             openHouseForm(house);
 
-            //saveHouses(house);
-                
-            console.log(houses)
+            // saveHouses(house);
 
             });
 
         
 
-        document.getElementById("cancelHouse").onclick=function(){
-
-               document.getElementById("houseForm").style.bottom = "-500px";;
-
-            }
+        
 
         //});
 
@@ -455,8 +472,9 @@ function saveHouses(house){
         selectedHouse.people=
                 document.getElementById("people").value;
 
+        selectedHouse.buildingType=document.getElementById("buildingType").value;
+
         if(!house.houseNo){
-        console.log('hello')
         document.getElementById("houseNo").placeholder="Enter a house number"
         return;
     }
@@ -515,8 +533,9 @@ function saveHouses(house){
 
 
         //house.status=1;
+        house.marker.setIcon(createPDFMarkerIcon(selectedHouse));
 
-        selectedHouse.houseNo = document.getElementById("houseNo").value;
+        // selectedHouse.houseNo = document.getElementById("houseNo").value;
 
         // selectedHouse.marker.bindTooltip(
 
@@ -560,6 +579,10 @@ function saveHousesToLocalStorage(){
 
             status:house.status,
 
+            buildingType:house.buildingType,
+
+            rotation:house.rotation,
+
         });
     });
 
@@ -584,6 +607,8 @@ function openHouseForm(house){
     document.getElementById("people").value =
         house.people;
 
+    document.getElementById("buildingType").value = house.buildingType || "goodResidence";
+
     const form = document.getElementById("houseForm");
 
     form.style.bottom = "100px";
@@ -593,6 +618,31 @@ function openHouseForm(house){
         deleteHouses(house);
 
     };
+    document.getElementById("rotateLeft").onclick = function () {
+
+    if (!house) return;
+
+    house.rotation = (house.rotation || 0) - 15;
+
+    if (house.rotation < 0)
+        house.rotation += 360;
+
+    house.marker.setIcon(createPDFMarkerIcon(house));
+
+};
+document.getElementById("rotateRight").onclick = function () {
+
+    console.log("rotateright")
+
+    if (!house) return;
+
+    house.rotation = (house.rotation || 0) + 15;
+
+    house.rotation %= 360;
+
+    house.marker.setIcon(createPDFMarkerIcon(house));
+
+};
 
     document.getElementById("saveHouse").onclick=function(){
             
@@ -613,7 +663,6 @@ function searchHouse(hno){
         return h.houseNo === hno;
 
     });
-    console.log(houses)
     if(house){
 
         map.flyTo(
@@ -666,8 +715,6 @@ function deleteHouses(house){
 
     const index = houses.indexOf(house);
 
-    console.log(index)
-
     if(index !== -1){
 
         houses.splice(index,1);
@@ -712,8 +759,6 @@ function showLocation(position){
     const lng = position.coords.longitude;
 
     const accuracy = position.coords.accuracy;
-
-    console.log(lat,lng,accuracy);
 
     const latlng = [lat,lng];
 
@@ -843,8 +888,6 @@ function importSurvey(data){
     houses = [];
 
     drawnItems.clearLayers();
-    console.log("Checking wardboundary in local storage before")
-    console.log(localStorage.getItem("wardBoundary"));
 
     localStorage.removeItem("wardBoundary");
 
@@ -1215,10 +1258,52 @@ const printBoundary = L.geoJSON(
 }
 function createPDFMarkerIcon(house){
 
+    const rotation = house.rotation || 0;
+
+    var letterRotation=0;
+
     let markerClass = "";
     var hno=house.houseNo;
     var cno=house.rooms
     var sno=house.people
+    var btype=house.buildingType || "res_good"
+    var img_src=""
+
+    switch (btype) {
+
+    case "res_good":
+        img_src="icons/square.svg";
+        break;
+
+    case "res_bad":
+        img_src="icons/squarefilled.svg";
+        break;
+
+    case "shop_good":
+        img_src="icons/triangle.svg";
+        break;
+    case "shop_bad":
+        img_src="icons/trianglefilled.svg";
+        break;
+
+    case "temple":
+        img_src="icons/temple.png";
+        break;
+    case "mosque":
+        img_src="icons/mosque.png";
+        break;
+    case "church":
+        img_src="icons/church.svg";
+        break;
+    default:
+    img_src = "icons/square.svg";
+
+}
+console.log(rotation)
+if (rotation<270 && rotation>90){
+    letterRotation=180;
+    // console.log(letterRotation)
+}
 
     if(house.length==0){
         markerClass="pdf-incompleted"
@@ -1241,15 +1326,18 @@ function createPDFMarkerIcon(house){
         className: "",
 
         html: `
-        <div class="main-pdf ${markerClass}">
-        <div class="pdf-marker-sno">
+        <div class="main-pdf ${markerClass}" style="transform: rotate(${rotation}deg);">
+        <div class="btype">
+                <img src="${img_src}">
+            </div>
+        <div class="pdf-marker-sno" style="transform: rotate(${letterRotation}deg);">
                 ${sno}
             </div>
         <div id="pdf-marker-left">
-            <div class="pdf-marker">
+            <div class="pdf-marker" style="transform: rotate(${letterRotation}deg);">
                 ${hno}
             </div>
-            <div class="pdf-marker">
+            <div class="pdf-marker" style="transform: rotate(${letterRotation}deg);">
                 ${cno}
             </div>
             </div>
@@ -1265,8 +1353,6 @@ function createPDFMarkerIcon(house){
 async function exportPDF() {
 
     const paper = document.getElementById("paper");
-
-    console.log(paper);
 
     const canvas = await html2canvas(paper, {
 
@@ -1289,7 +1375,6 @@ async function exportPDF() {
         format: "a4"
 
     });
-    console.log("pdf generation");
 
     // pdf.addImage(
 
@@ -1319,8 +1404,6 @@ document.getElementById("downloadPdf").onclick =function(){
     // console.log("Export button pressed");
     
     exportPDF();
-
-    console.log("Export button pressed");
 };
 document.getElementById("closePrintPreview").onclick = function () {
 
@@ -1437,12 +1520,14 @@ document.addEventListener("click",function(){
 
 document.getElementById("templatePdfBtn").onclick = function(){
 
+    document.querySelectorAll(".handle").forEach(handle => {
+        handle.style.opacity="1";
+    });
+
     // document.getElementById("templateEditor").classList.add("open");
     document.getElementById("templateEditor").style.display="inline-block";
 
     if(!templateMap){
-
-        console.log("templateMap")
 
         templateMap = L.map("templatePaperMap", {
     zoomControl: false,
@@ -1458,7 +1543,6 @@ document.getElementById("templatePdfBtn").onclick = function(){
                 maxZoom:22
             }
         ).addTo(templateMap);
-console.log("templateMapp 2")
     }
 
     setTimeout(function(){
@@ -1473,7 +1557,6 @@ console.log("templateMapp 2")
 }
 document.getElementById("closeTemplatePdf").onclick = function(){
 
-    console.log("close button")
 
     document.getElementById("templateEditor").style.display="none";
 
@@ -1533,8 +1616,6 @@ function loadTemplateLayout(){
 // const seHandle = document.querySelector(".se");
 // const seHandle=document.getElementById("se")
 const handles = document.querySelectorAll(".handle");
-
-console.log(document.getElementById("se"))
 handles.forEach(function(handle){
 
     handle.addEventListener("mousedown", function(e){
@@ -1555,7 +1636,6 @@ handles.forEach(function(handle){
 
         startLeft = overlay.offsetLeft;
         startTop = overlay.offsetTop;
-        console.log(resizeDir);
 
     });
 
@@ -1620,8 +1700,6 @@ if(resizeDir.includes("n")){
 });
 document.addEventListener("mouseup", function(){
 
-    console.log(resizing)
-
     resizeDir = "";
 
     resizing = false;
@@ -1651,6 +1729,10 @@ document.getElementById("templateZoomOut").onclick = function(){
 document.getElementById("exportTemplatePdf").onclick = exportTemplatePDF;
 
 function exportTemplatePDF(){
+
+    document.querySelectorAll(".handle").forEach(handle => {
+        handle.style.opacity="0";
+    });
 
     const overlay = document.getElementById("mapOverlay");
 
@@ -1745,21 +1827,594 @@ function searchPlace(query){
     });
 
 }
+document.getElementById("roads").onclick= function(){
 
-// if ("serviceWorker" in navigator) {
 
-//     navigator.serviceWorker.register("sw.js")
+    document.getElementById("drawRoadMenu").classList.toggle("show");
+}
+document.getElementById("gRoad").onclick = function () {
 
-//     .then(function(reg){
+    drawingRoad = true;
+    currentRoadType = "goodRoad";
+    currentRoadPoints = [];
 
-//         console.log("Service Worker Registered");
+}
 
-//     })
+document.getElementById("bRoad").onclick = function () {
 
-//     .catch(function(error){
+    drawingRoad = true;
+    currentRoadType = "badRoad";
+    currentRoadPoints = [];
 
-//         console.log(error);
+}
 
-//     });
+document.getElementById("pRoad").onclick = function () {
 
-// }
+    drawingRoad = true;
+    currentRoadType = "path";
+    currentRoadPoints = [];
+
+}
+map.on("click", function(e){
+
+    if(!drawingRoad) return;
+
+    currentRoadPoints.push(e.latlng);
+
+    if(tempRoad){
+        map.removeLayer(tempRoad);
+    }
+
+    // tempRoad = drawRoad(currentRoadPoints, currentRoadType);
+    const spline = createSpline(currentRoadPoints);
+
+    tempRoad=drawRoad(spline,currentRoadType);
+
+});
+function drawRoad(points, type ,selected = false) {
+    
+
+// const smoothPoints = createSpline(points);
+    switch(type){
+
+        case "goodRoad":{
+            const border = L.polyline(points, {
+    ...getRoadStyle(type, selected, true),
+    lineJoin: "round",
+    lineCap: "round"
+});
+const fill = L.polyline(points, {
+    ...getRoadStyle(type, selected, false),
+    lineJoin: "round",
+    lineCap: "round"
+});
+return L.layerGroup([border, fill]).addTo(map);
+        }
+            
+        case "badRoad":{
+            const border = L.polyline(points,{
+    ...getRoadStyle(type, selected, true),
+    lineJoin:"round",
+    lineCap:"round"
+});
+const fill = L.polyline(points,{
+    ...getRoadStyle(type, selected, false),
+    
+    lineJoin:"round",
+    lineCap:"round"
+});
+return L.layerGroup([border, fill]).addTo(map);
+        }
+
+        case "path":
+            // const color = selected ? "#ff9800" : "#000000";
+            return L.polyline(points,{
+                ...getRoadStyle(type, selected, false),
+            }).addTo(map);
+
+    }
+
+}
+function getRoadStyle(type, selected = false, isBorder = false) {
+
+    switch(type){
+
+        case "goodRoad":
+
+            if(isBorder){
+                return {
+                    color: selected ? "#ff9800" : "#000000",
+                    weight:10
+                };
+            }
+
+            return {
+                color: selected ? "#ffd54f" : "#4a90ff",
+                weight:6,
+                opacity:0.7
+            };
+
+
+        case "badRoad":
+
+            if(isBorder){
+                return {
+                    color:selected ? "#ff9800" : "#000000",
+                    weight:10,
+                    dashArray:"20 20"
+                };
+            }
+
+            return {
+                color:selected ? "#ffd54f" : "#f6d7d8",
+                weight:4,
+                opacity:0.7
+            };
+
+
+        case "path":
+
+            return {
+                color:selected ? "#ff9800" : "#000000",
+                weight:5,
+                dashArray:"8 8"
+            };
+
+    }
+
+}
+
+function catmullRom(p0, p1, p2, p3, t) {
+
+    return 0.5 * (
+        (2 * p1) +
+        (-p0 + p2) * t +
+        (2*p0 - 5*p1 + 4*p2 - p3) * t*t +
+        (-p0 + 3*p1 - 3*p2 + p3) * t*t*t
+    );
+
+}
+
+function createSpline(controlPoints) {
+
+    let splinePoints = [];
+
+    if (controlPoints.length < 3) {
+        return controlPoints;
+    }
+
+    for(let i = 0; i < controlPoints.length - 1; i++) {
+
+        const p0 = controlPoints[Math.max(i - 1, 0)];
+const p1 = controlPoints[i];
+const p2 = controlPoints[i + 1];
+const p3 = controlPoints[Math.min(i + 2, controlPoints.length - 1)];
+for(let t = 0; t <= 1; t += 0.05){
+
+    const lat = catmullRom(
+    p0.lat,
+    p1.lat,
+    p2.lat,
+    p3.lat,
+    t
+);
+
+const lng = catmullRom(
+    p0.lng,
+    p1.lng,
+    p2.lng,
+    p3.lng,
+    t
+);
+splinePoints.push(
+    L.latLng(lat, lng)
+);
+}
+
+}
+
+  splinePoints.push(controlPoints[controlPoints.length - 1]);  
+
+    return splinePoints;
+}
+function loadRoads(){
+
+    console.log("Hello")
+
+    const savedRoads = JSON.parse(localStorage.getItem("roads"));
+
+    if(!savedRoads) return;
+
+    roads = savedRoads;
+
+    roads.forEach(road => {
+
+    // const roadLayer = drawRoad(road.controlPoints, road.type);
+    const spline = createSpline(road.controlPoints);
+
+    const roadLayer=drawRoad(spline,road.type);
+
+    road.layer = roadLayer;
+
+    attachRoadEvents(road);
+//     console.log(road.layer);
+// console.log(road.layer.constructor.name);
+
+    // road.layer.on("click", function(){
+    //     console.log("goodroadclicked")
+    //     selectedRoad = road;
+    //     if (!editingRoad) return;
+    //     highlightRoad(road);
+        
+    //     editRoad(road);
+
+    // });
+    
+
+});
+
+}
+document.getElementById("stopRoad").onclick = function () {
+
+    if (currentRoadPoints.length < 2) {
+        alert("Draw at least two points.");
+        return;
+    }
+
+    if (tempRoad) {
+        map.removeLayer(tempRoad);
+        tempRoad = null;
+    }
+
+
+    // Draw the road (for now just a polyline)
+    // const roadLayer = drawRoad(currentRoadPoints, currentRoadType);
+    const spline = createSpline(currentRoadPoints);
+
+    const roadLayer=drawRoad(spline,currentRoadType);
+    const road = {
+    id: Date.now(),
+    type: currentRoadType,
+    controlPoints: [...currentRoadPoints],
+    layer: roadLayer
+};
+road.layer.on("click", function () {
+
+    selectedRoad = road;
+
+    if (!editingRoad) return; 
+
+    highlightRoad(road);
+
+    editRoad(road);
+
+});
+roads.push(road);
+
+localStorage.setItem(
+    "roads",
+    JSON.stringify(
+        roads.map(road => ({
+            id: road.id,
+            type: road.type,
+            controlPoints: road.controlPoints
+        }))
+    )
+);
+
+
+    // Exit drawing mode
+    drawingRoad = false;
+    currentRoadType = null;
+    currentRoadPoints = [];
+
+    // Remove temporary line
+};
+document.getElementById("deleteRoad").onclick = function () {
+
+    if (!selectedRoad) {
+        alert("Select a road first.");
+        return;
+    }
+
+    if (!confirm("Delete this road?")) {
+        return;
+    }
+
+    // Remove from map
+    map.removeLayer(selectedRoad.layer);
+
+    // Remove edit markers
+    roadEditLayer.clearLayers();
+
+    // Remove from array
+    roads = roads.filter(road => road.id !== selectedRoad.id);
+
+    // Save to localStorage
+    localStorage.setItem(
+        "roads",
+        JSON.stringify(
+            roads.map(road => ({
+                id: road.id,
+                type: road.type,
+                controlPoints: road.controlPoints
+            }))
+        )
+    );
+
+    selectedRoad = null;
+
+    roadEditLayer.clearLayers();
+
+    console.log("Road deleted.");
+};
+function editRoad(road){
+
+    roadEditLayer.clearLayers();
+    road.controlPoints.forEach(function(point,index){
+
+    const marker = L.marker(point,{
+        draggable:true
+    });
+
+    marker.addTo(roadEditLayer);
+
+    marker.on("dragend", function(e){
+
+    road.controlPoints[index] = e.target.getLatLng();
+    // console.log("Removing", road.layer._leaflet_id);
+
+    map.removeLayer(road.layer);
+    // console.log("After remove:", map.hasLayer(road.layer));
+
+    // road.layer = drawRoad(road.controlPoints, road.type);
+    const spline = createSpline(road.controlPoints);
+
+    road.layer=drawRoad(spline,road.type);
+
+    road.layer.on("click", function () {
+        highlightRoad(road);
+        editRoad(road);
+    });
+    localStorage.setItem(
+    "roads",
+    JSON.stringify(
+        roads.map(road => ({
+            id: road.id,
+            type: road.type,
+            controlPoints: road.controlPoints
+        }))
+    )
+);
+
+});
+// marker.setLatLng(e.target.getLatLng());
+
+});
+
+}
+document.getElementById("editRoad").onclick = function () {
+    editingRoad = true;
+};
+document.getElementById("stopEditRoad").onclick = function () {
+
+    editingRoad = false;
+
+    roadEditLayer.clearLayers();
+
+};
+function createParallelRoad(splinePoints, offset) {
+
+    let left = [];
+    let right = [];
+    for (let i = 0; i < splinePoints.length; i++) {
+        const prev = splinePoints[Math.max(0, i - 1)];
+        const curr = splinePoints[i];
+        const next = splinePoints[Math.min(splinePoints.length - 1, i + 1)];
+
+        const p0 = map.latLngToLayerPoint(prev);
+        const p1 = map.latLngToLayerPoint(curr);
+        const p2 = map.latLngToLayerPoint(next);
+        const tx = p2.x - p0.x;
+        const ty = p2.y - p0.y;
+        const length = Math.sqrt(tx * tx + ty * ty);
+
+        if (length === 0) continue;
+
+        const ux = tx / length;
+        const uy = ty / length;
+
+        const nx = -uy;
+        const ny = ux;
+
+        const leftPixel = L.point(
+            p1.x + nx * offset,
+            p1.y + ny * offset
+        );
+
+        const rightPixel = L.point(
+            p1.x - nx * offset,
+            p1.y - ny * offset
+        );
+        left.push(
+            map.layerPointToLatLng(leftPixel)
+        );
+
+        right.push(
+            map.layerPointToLatLng(rightPixel)
+        );
+
+    }
+
+    return {
+        left,
+        right
+    };
+
+}
+function highlightRoad(road) {
+
+    
+
+
+    if (selectedRoad) {
+        setRoadStyle(selectedRoad, false);
+        console.log("hello")
+    }
+     console.log("hello")
+    setRoadStyle(road, true);
+
+    selectedRoad = road;
+
+    
+}
+function setRoadStyle(road, selected) {
+
+    if (road.layer instanceof L.LayerGroup) {
+
+        road.layer.eachLayer(function(layer, index) {
+
+            layer.setStyle(
+                getRoadStyle(
+                    road.type,
+                    selected,
+                    index === 0
+                )
+            );
+
+        });
+
+    }
+    else {
+
+        road.layer.setStyle(
+            getRoadStyle(
+                road.type,
+                selected,
+                false
+            )
+        );
+
+    }
+
+}
+function attachRoadEvents(road) {
+
+    console.log("Road clicked:", road.id);
+
+    if (road.layer instanceof L.LayerGroup) {
+
+        road.layer.eachLayer(function(layer) {
+
+            layer.on("click", function(e) {
+
+                highlightRoad(road);
+
+
+                if (!editingRoad) return;
+
+                console.log("one")
+
+                addControlPoint(road, e.latlng);
+
+                editRoad(road);
+
+            });
+
+        });
+
+    } else {
+
+        road.layer.on("click", function(e) {
+            highlightRoad(road);
+
+            if (!editingRoad) return;
+
+            console.log("two")
+
+            addControlPoint(road,e.latlng);
+
+            editRoad(road);
+
+        });
+
+    }
+
+}
+function addControlPoint(road, clickedPoint){
+
+    const index = findNearestSegment(
+        road.controlPoints,
+        clickedPoint
+    );
+    road.controlPoints.splice(index + 1, 0, clickedPoint);
+    map.removeLayer(road.layer);
+
+const spline = createSpline(road.controlPoints);
+
+road.layer = drawRoad(spline, road.type);
+
+attachRoadEvents(road);
+
+editRoad(road);
+    console.log("Addidng control points")
+    console.log(index);
+
+}
+function findNearestSegment(controlPoints, clickedPoint) {
+
+    let nearestIndex = 0;
+    let nearestDistance = Infinity;
+
+    for (let i = 0; i < controlPoints.length - 1; i++) {
+
+        const p1 = map.latLngToLayerPoint(controlPoints[i]);
+        const p2 = map.latLngToLayerPoint(controlPoints[i + 1]);
+        const click = map.latLngToLayerPoint(clickedPoint);
+
+        const distance = L.LineUtil.pointToSegmentDistance(click, p1, p2);
+
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestIndex = i;
+        }
+
+    }
+
+    return nearestIndex;
+
+}
+
+function latLngsToCoordinates(points){
+
+    return points.map(point => [
+        point.lng,
+        point.lat
+    ]);
+
+}
+function coordinatesToLatLngs(coords){
+
+    return coords.map(coord => [
+        coord[1],
+        coord[0]
+    ]);
+
+}
+if ("serviceWorker" in navigator) {
+
+    navigator.serviceWorker.register("sw.js")
+
+    .then(function(reg){
+
+        console.log("Service Worker Registered");
+
+    })
+
+    .catch(function(error){
+
+        console.log(error);
+
+    });
+
+}

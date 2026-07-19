@@ -111,6 +111,12 @@ href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css"/>
             <button id="editBoundaryBtn">
                 <img src="icons/pencil-svgrepo-com.svg">
             </button>
+            <button id="rotateLeft">
+                <img src="icons/rotateleft.svg">
+            </button>
+            <button id="rotateRight">
+                <img src="icons/rotateright.svg">
+            </button>
 
             <button id="clearBoundaryBtn">
                 <img src="icons/clearboundary.svg">
@@ -120,6 +126,40 @@ href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css"/>
         </div>
 
     </div>
+    <div class="menu">
+
+        <button id="roads" class="mainBtn">
+
+            <img src="icons/roads.svg">
+
+        </button>
+        <div id="drawRoadMenu">
+
+            <button id="gRoad">
+                Good Road
+            </button>
+
+            <button id="bRoad">
+                Bad Road
+            </button>
+
+            <button id="pRoad">
+                Path
+            </button>
+            <button id="editRoad">
+                Edit
+            </button>
+            <button id="stopEditRoad">Stop Edit</button>
+            <button id="deleteRoad">Delete</button>
+            <button id="stopRoad">
+                Save Road
+            </button>
+            
+
+        </div>
+
+
+        </div>
     <div class="menu">
 
         <button id="exportPdfBtn" class="mainBtn">
@@ -219,6 +259,16 @@ href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css"/>
         <input type="checkbox" id="cboxrevisit">
         <label for="cboxrevisit">Mark for Revisit</label>
     </div>
+
+<select id="buildingType">
+    <option value="res_good">Good Resi</option>
+    <option value="res_bad">Bad Resi</option>
+    <option value="shop_good">Good Shop</option>
+    <option value="shop_bad">Bad Shop</option>
+    <option value="temple">Temple</option>
+    <option value="mosque">Mosque</option>
+    <option value="church">Church</option>
+</select>
 
     <div id="buttonRow">
         <button id="saveHouse">Save</button>

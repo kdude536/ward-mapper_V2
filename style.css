@@ -93,6 +93,9 @@ padding:10px;
     font-weight:bolder;
 
 }
+#buttonRow button:hover{
+    border: solid 5px black;
+}
 .check{
       display:flex;
     width: 100%;
@@ -1097,6 +1100,20 @@ select{
     border:1px solid black;
 
 }
+.btype{
+    width: 10px;
+    height: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+
+}
+.btype img{
+    width: 7px;
+    height: 7px;
+    background-color: white;
+}
 .pdf-marker-sno{
 
     background-color: #ddda1f;
@@ -1284,9 +1301,9 @@ select{
 
     position:absolute;
 
-    width:12px;
+    width:22px;
 
-    height:12px;
+    height:22px;
 
     background:violet;
 
@@ -1298,12 +1315,15 @@ select{
 
     z-index:9999;
 
-     /* opacity:0; */
+     opacity:0;
 
     transition:.15s;
 
     /* pointer-events:none; */
 
+}
+.handle:active{
+    background:red;
 }
 #mapOverlay.selected .handle{
 
@@ -1406,4 +1426,30 @@ select{
 
     cursor:ew-resize;
 
+}
+#drawRoadMenu{
+
+    background-color: #0e39e5;
+
+    /* display: flex; */
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    margin-left: 5px;
+
+    display: none;
+
+    position: relative;
+
+    top: 40px;
+
+    left: 60px;
+}
+.show{
+
+    display: flex !important;
+
+    flex-direction: column;
 }
