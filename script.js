@@ -2399,20 +2399,20 @@ function coordinatesToLatLngs(coords){
     ]);
 
 }
-// if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator) {
 
-//     navigator.serviceWorker.register("sw.js")
+    navigator.serviceWorker.register("sw.js")
 
-//     .then(function(reg){
+    .then(function(reg){
 
-//         console.log("Service Worker Registered");
+        console.log("Service Worker Registered");
 
-//     })
+    })
 
-//     .catch(function(error){
+    .catch(function(error){
 
-//         console.log(error);
+        console.log(error);
 
-//     });
+    });
 
-// }
+}
