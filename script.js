@@ -1330,9 +1330,7 @@ if (rotation<270 && rotation>90){
         <div class="btype">
                 <img src="${img_src}">
             </div>
-        <div class="pdf-marker-sno" style="transform: rotate(${letterRotation}deg);">
-                ${sno}
-            </div>
+       
         <div id="pdf-marker-left">
             <div class="pdf-marker" style="transform: rotate(${letterRotation}deg);">
                 ${hno}
@@ -2401,20 +2399,20 @@ function coordinatesToLatLngs(coords){
     ]);
 
 }
-if ("serviceWorker" in navigator) {
+// if ("serviceWorker" in navigator) {
 
-    navigator.serviceWorker.register("sw.js")
+//     navigator.serviceWorker.register("sw.js")
 
-    .then(function(reg){
+//     .then(function(reg){
 
-        console.log("Service Worker Registered");
+//         console.log("Service Worker Registered");
 
-    })
+//     })
 
-    .catch(function(error){
+//     .catch(function(error){
 
-        console.log(error);
+//         console.log(error);
 
-    });
+//     });
 
-}
+// }
